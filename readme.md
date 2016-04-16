@@ -6,4 +6,4 @@ This is a simple command-line tool that will take in a list of words (one of whi
 
 For details on the algorithms and sample word lists, check out the blog.
 
-To get started, run `npm install`, then just type `node app`. The prompts will walk you through the rest.
+To get started, make sure you have node installed. Then run `npm install`, and when that's finished just type `node app`. The prompts will walk you through the rest.
