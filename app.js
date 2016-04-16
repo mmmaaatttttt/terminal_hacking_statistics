@@ -4,6 +4,7 @@ const strategies = require('./strategies');
 const words = require('./words');
 const helpers = require('./helpers');
 const prompt = require('prompt');
+const TOTAL_GUESSES = 4;
 
 function solvePuzzle(arr, answer, algorithm, count) {
   let guessCount = count || 1;
@@ -65,97 +66,49 @@ let schema = {
   }
 }
 
+let algorithms = {
+  "r": strategies.randomString,
+  "c": strategies.closestString,
+  "f": strategies.farthestString,
+  "m": strategies.maximumAverageEliminations
+}
+
 prompt.get(schema, (err, res) => {
-  err ? console.log("ERR", err) : console.log("RES", res);
-  process.exit(1);
+  if (err) {
+    console.log("Sorry, looks like there was an error: ", err);
+    process.exit(1);
+  } else {
+    // grab the algorithm and number of trials (only > 1 for random algorithm)
+    let algorithm = algorithms[res.algorithm.toLowerCase()];
+    let numTrials = res.algorithm.toLowerCase() === "r" ? +res.numTrials : 1;
+
+    // get the list of words to be used
+    let wordList = [];
+    if (res.listType === '1') {
+      let singleList = res.singleList.toLowerCase().trim();
+      if (singleList === 'sample5' || singleList === 'sample6' || singleList === 'sample7') {
+        wordList = words[singleList];
+      } else {
+        wordList = singleList.split(",").map(word => word.trim());
+      }
+    } else if (res.listType === '2') {
+      let key = "all" + res.wordLength;
+      wordList = helpers.grabRandomElementsFromAnArray(words[key], +res.wordListLength);
+    } else {
+      wordList = helpers.createArrayOfRandomStrings(+res.wordListLength, +res.randomWordLength);
+    }
+
+    // run the test
+    console.log("Crunching the numbers...")
+    let guessAverage = 0;
+    let winCount = 0
+    let guessCounts = [];
+    for (let i = 0; i < numTrials; i++) {
+      guessCounts = wordList.map(ans => solvePuzzle(wordList, ans, algorithm));
+      guessAverage += helpers.average(guessCounts);
+      winCount += guessCounts.filter(count => count <= TOTAL_GUESSES).length
+    }
+    console.log(`${algorithm.name}, tested on ${wordList}: \n\n Average number of guesses: ${guessAverage/numTrials}, \n Win Percentage: ${winCount/(wordList.length * numTrials)}`);
+  }
+  process.exit(0);
 })
-
-// algorithm to test
-  // if random, number of trials
-// list type - one list, or sampling of many words, or sampling of many random strings
-  // if one list, enter a list or pick
-  // if sampling many, enter number of letters, length of list
-  // if sampling many random strings, enter number of words, number of chars per word 
-
-let algorithms = [strategies.randomString, strategies.closestString, strategies.farthestString, strategies.highestAverageEliminations] 
-
-// Statistics for sample word lists
-// algorithms.forEach(function(algo) {
-//   [words.sample1, words.sample2, words.sample3].forEach(function(wordList) {
-//     var guessAverage = 0;
-//     var winCount = 0;
-//     var guessCounts;
-//     var totalTrials = (algo.name === "randomString") ? 1e5 : 1;
-//     var listDensity = helpers.averageAverageDistance(wordList);
-//     for (var i = 0; i < totalTrials; i++) {
-//       guessCounts = wordList.map(function(ans) { return solvePuzzle(wordList, ans, algo )});
-//       guessAverage += guessCounts.reduce(function(p, c) { return p + c; }, 0)/(guessCounts.length * totalTrials);
-//       winCount += guessCounts.filter(function(count) { return count < 5 }).length;
-//     }
-//     console.log(algo.name + ": " + wordList, 
-//       "\n", "Average number of guesses " + guessAverage, 
-//       "\n", "Win Percentage: " + winCount/(wordList.length * totalTrials),
-//       "\n", "List Density: " + listDensity
-//     );
-//   });
-// });
-
-// Statistics for exhaustive word lists
-// var guessAverage = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
-// var winCount = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
-// var totalTrials = [1e3, 1, 1, 1];
-// var guessCounts;
-// for (var j = 0; j < 1e4; j++) {
-//   console.log(j);
-//   var list1 = helpers.grabRandomElementsFromAnArray(words.all5, 12);
-//   var list2 = helpers.grabRandomElementsFromAnArray(words.all6, 12);
-//   var list3 = helpers.grabRandomElementsFromAnArray(words.all7, 12);
-//   [list1, list2, list3].forEach(function(wordList, listIdx) { // 3
-//     algorithms.forEach(function(algo, algoIdx) {
-//       for (var i = 0; i < totalTrials[algoIdx]; i++) {
-//         guessCounts = wordList.map(function(ans) { return solvePuzzle(wordList, ans, algo )});
-//         guessAverage[algoIdx][listIdx] += guessCounts.reduce(function(p, c) { return p + c; }, 0)/(guessCounts.length * totalTrials[algoIdx] * 1e2);
-//         winCount[algoIdx][listIdx] += guessCounts.filter(function(count) { return count < 5 }).length;
-//       }
-//     });
-//   });
-// }
-// algorithms.forEach(function(algo, idx) {
-//   [5, 6, 7].forEach(function(word, widx) {
-//     console.log(algo.name + ": length " + word, 
-//       "\n", "Average number of guesses " + guessAverage[idx][widx], 
-//       "\n", "Win Percentage: " + winCount[idx][widx]/(12 * totalTrials[idx] * 1e2)
-//     );
-//   })
-// });
-
-// Statistics for random word lists
-// var guessAverage = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
-// var winCount = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
-// var totalTrials = [1e3, 1, 1, 1];
-// var guessCounts;
-// for (var j = 0; j < 1e4; j++) {
-//   console.log(j);
-//   var list1 = helpers.createArrayOfRandomStrings(12, 5);
-//   var list2 = helpers.createArrayOfRandomStrings(12, 6);
-//   var list3 = helpers.createArrayOfRandomStrings(12, 7);
-//   [list1, list2, list3].forEach(function(wordList, listIdx) { // 3
-//     algorithms.forEach(function(algo, algoIdx) {
-//       for (var i = 0; i < totalTrials[algoIdx]; i++) {
-//         guessCounts = wordList.map(function(ans) { return solvePuzzle(wordList, ans, algo )});
-//         guessAverage[algoIdx][listIdx] += guessCounts.reduce(function(p, c) { return p + c; }, 0)/(guessCounts.length * totalTrials[algoIdx] * 1e4);
-//         winCount[algoIdx][listIdx] += guessCounts.filter(function(count) { return count < 5 }).length;
-//       }
-//     });
-//   });
-// }
-// algorithms.forEach(function(algo, idx) {
-//   [5, 6, 7].forEach(function(word, widx) {
-//     console.log(algo.name + ": length " + word, 
-//       "\n", "Average number of guesses " + guessAverage[idx][widx], 
-//       "\n", "Win Percentage: " + winCount[idx][widx]/(12 * totalTrials[idx] * 1e4)
-//     );
-//   })
-// });
-
-// process.exit(1)

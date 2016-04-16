@@ -18,7 +18,7 @@ function farthestString(wordList) {
   });
 }
 
-function highestAverageEliminations(wordList) {
+function maximumAverageEliminations(wordList) {
   return wordList.reduce((prevWord, curWord) => {
     let prevAverage = helpers.average(helpers.eliminationsArray(prevWord, wordList));
     let curAverage = helpers.average(helpers.eliminationsArray(curWord, wordList));
@@ -33,6 +33,6 @@ function randomString(arr) {
 module.exports = {
   closestString,
   farthestString,
-  highestAverageEliminations,
+  maximumAverageEliminations,
   randomString
 }
