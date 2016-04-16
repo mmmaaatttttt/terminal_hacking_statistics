@@ -1,3 +1,5 @@
+'use strict'
+
 function createRandomString(length) {
   return new Array(length).fill(0).map(el => {
     return String.fromCharCode(Math.floor(Math.random() * 26 + 97))

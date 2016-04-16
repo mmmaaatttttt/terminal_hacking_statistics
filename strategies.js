@@ -1,3 +1,5 @@
+'use strict'
+
 let helpers = require('./helpers');
 
 function closestString(wordList) {
