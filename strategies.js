@@ -1,30 +1,28 @@
-var helpers = require('./helpers');
+let helpers = require('./helpers');
 
-function closestString(arr) {
-  return arr.reduce((prev, cur) => averageDistance(cur, arr) < averageDistance(prev, arr) ? cur : prev);
+function closestString(wordList) {
+  return wordList.reduce((prevWord, curWord) => {
+    let prevAverage = helpers.average(helpers.distanceArray(prevWord, wordList));
+    let curAverage = helpers.average(helpers.distanceArray(curWord, wordList));
+    return curAverage < prevAverage ? cur : prev;
+  });
 }
 
-function farthestString(arr) {
-  return arr.reduce((prev, cur) => averageDistance(cur, arr) > averageDistance(prev, arr) ? cur : prev);
+function farthestString(wordList) {
+  return wordList.reduce((prevWord, curWord) => {
+    let prevAverage = helpers.average(helpers.distanceArray(prevWord, wordList));
+    let curAverage = helpers.average(helpers.distanceArray(curWord, wordList));
+    return curAverage > prevAverage ? cur : prev;
+  });
 }
 
 function highestAverageEliminations(arr) {
-  var averageElims = arr.map(function(guessStr) {
-    return arr.map(function(answerStr) {
-      var eliminated = arr.filter(function(testStr) { 
-        return helpers.stringDistance(guessStr, answerStr) !== helpers.stringDistance(guessStr, testStr);
-      });
-      return (guessStr === answerStr) ? arr.length : eliminated.length;
-    });
-  }).map(function(countArr) {
-    return countArr.reduce(function(s, n) { 
-      return s + n
-    })/countArr.length;
+  return wordList.reduce((prevWord, curWord) => {
+    let prevAverage = helpers.average(helpers.eliminationsArray(prevWord, wordList));
+    let curAverage = helpers.average(helpers.eliminationsArray(curWord, wordList));
+    return curAverage > prevAverage ? cur : prev;
   });
-  return arr[averageElims.indexOf(Math.max.apply(Math, averageElims))]
 }
-
-
 
 function randomString(arr) {
   return arr[~~(arr.length * Math.random())];
