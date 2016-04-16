@@ -1,12 +1,12 @@
 'use strict'
 
-let helpers = require('./helpers');
+const helpers = require('./helpers');
 
 function closestString(wordList) {
   return wordList.reduce((prevWord, curWord) => {
     let prevAverage = helpers.average(helpers.distanceArray(prevWord, wordList));
     let curAverage = helpers.average(helpers.distanceArray(curWord, wordList));
-    return curAverage < prevAverage ? cur : prev;
+    return curAverage < prevAverage ? curWord : prevWord;
   });
 }
 
@@ -14,15 +14,15 @@ function farthestString(wordList) {
   return wordList.reduce((prevWord, curWord) => {
     let prevAverage = helpers.average(helpers.distanceArray(prevWord, wordList));
     let curAverage = helpers.average(helpers.distanceArray(curWord, wordList));
-    return curAverage > prevAverage ? cur : prev;
+    return curAverage > prevAverage ? curWord : prevWord;
   });
 }
 
-function highestAverageEliminations(arr) {
+function highestAverageEliminations(wordList) {
   return wordList.reduce((prevWord, curWord) => {
     let prevAverage = helpers.average(helpers.eliminationsArray(prevWord, wordList));
     let curAverage = helpers.average(helpers.eliminationsArray(curWord, wordList));
-    return curAverage > prevAverage ? cur : prev;
+    return curAverage > prevAverage ? curWord : prevWord;
   });
 }
 
