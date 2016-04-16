@@ -11,20 +11,31 @@ function createArrayOfRandomStrings(arrLen, strLen) {
 function stringDistance(str1, str2) {
   if (typeof str1 !== 'string' || typeof str2 !== 'string') return 'Both inputs must be strings!';
   if (str2.length !== str1.length) return 'Strings must have the same length!';
-  var distance = str1.length;
-  for (var i = 0; i < str1.length; i++) {
+  let distance = str1.length;
+  for (let i = 0; i < str1.length; i++) {
     if (str1[i].toLowerCase() === str2[i].toLowerCase()) distance--;
   }
   return distance;
 }
 
-function averageDistance(str, arr) {
-  return arr.reduce((prev, cur) => prev + stringDistance(str, cur), 0)/arr.length;
+function distanceArray(str, arr) {
+  return arr.map(word => stringDistance(str, word));
+}
+
+function eliminationsArray(str, arr) {
+  return arr.map(answer => {
+    let eliminated = arr.filter(test => stringDistance(str, answer) !== stringDistance(str, test));
+    return eliminated.length + (str === answer);
+  });
+}
+
+function average(arr) {
+  return arr.reduce((prev, cur) => prev + cur, 0)/arr.length;
 }
 
 function grabRandomElementsFromAnArray(array, numEls) {
-  var arr = [];
-  var randIdx;
+  let arr = [];
+  let randIdx;
   if (numEls >= array.length) return array;
   while (arr.length < numEls) {
     randIdx = Math.floor(Math.random() * array.length);
@@ -37,7 +48,8 @@ module.exports = {
   createRandomString,
   createArrayOfRandomStrings,
   stringDistance,
-  averageDistance,
-  averageAverageDistance,
+  distanceArray,
+  eliminationsArray,
+  average,
   grabRandomElementsFromAnArray
 }
